@@ -1,0 +1,790 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coffee House — 3D Café Demo</title>
+  <style>
+    /* =========================================================
+       Coffee House — Single-file demo website
+       All CSS and JS are inside this one HTML file.
+       ========================================================= */:root {
+  --bg: #0f0b08;
+  --bg2: #1b120e;
+  --card: rgba(255, 248, 240, 0.08);
+  --card2: rgba(255, 248, 240, 0.12);
+  --text: #fff6ed;
+  --muted: #d8c7b8;
+  --accent: #d8a15d;
+  --accent2: #8c5b34;
+  --shadow: 0 20px 60px rgba(0,0,0,0.35);
+  --radius: 22px;
+  --max: 1180px;
+}
+
+* { box-sizing: border-box; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 90px;
+}
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(216,161,93,0.14), transparent 35%),
+    linear-gradient(180deg, var(--bg), var(--bg2) 55%, #120c09 100%);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+img { display: block; width: 100%; }
+
+/* Loading screen */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #261711, #110b08 75%);
+  display: grid;
+  place-items: center;
+  z-index: 9999;
+  transition: opacity 0.7s ease, visibility 0.7s ease;
+}
+.loader.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+.loader-box {
+  text-align: center;
+  transform: translateY(-8px);
+}
+.cup {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  border: 6px solid rgba(255,255,255,0.15);
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 30px rgba(216,161,93,0.35);
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader h1 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: 0.04em;
+}
+.loader p { margin: 10px 0 0; color: var(--muted); }
+
+/* Header / Nav */
+.nav-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(14px);
+  background: rgba(15, 11, 8, 0.55);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.nav {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: fit-content;
+}
+.logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(216,161,93,0.95), rgba(140,91,52,0.95));
+  box-shadow: 0 10px 30px rgba(216,161,93,0.25);
+  font-size: 1.2rem;
+}
+.brand strong { font-size: 1.05rem; }
+.brand span { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+.nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.nav-links a {
+  padding: 10px 14px;
+  border-radius: 999px;
+  color: var(--muted);
+  transition: 0.25s ease;
+  border: 1px solid transparent;
+}
+.nav-links a:hover {
+  color: var(--text);
+  border-color: rgba(216,161,93,0.35);
+  background: rgba(255,255,255,0.04);
+  transform: translateY(-1px);
+}
+
+/* Page layout */
+.section {
+  position: relative;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 90px 20px;
+}
+
+/* Hero */
+.hero {
+  min-height: calc(100vh - 78px);
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 28px;
+  perspective: 1200px;
+}
+.hero-copy {
+  transform-style: preserve-3d;
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: var(--muted);
+  border: 1px solid rgba(255,255,255,0.08);
+  margin-bottom: 18px;
+}
+.hero h1 {
+  margin: 0;
+  font-size: clamp(2.6rem, 7vw, 5.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-shadow: 0 10px 50px rgba(0,0,0,0.4);
+  transform: translateZ(32px);
+}
+.hero h1 .accent { color: #f0c28f; }
+.hero p {
+  max-width: 560px;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 20px 0 28px;
+  transform: translateZ(20px);
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  transform: translateZ(22px);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn.primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: transparent;
+  color: #160d08;
+}
+.btn:hover { transform: translateY(-2px) scale(1.02); }
+
+.hero-visual {
+  position: relative;
+  min-height: 560px;
+  display: grid;
+  place-items: center;
+  transform-style: preserve-3d;
+}
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(2px);
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.8), rgba(216,161,93,0.3) 34%, rgba(216,161,93,0.05) 62%, transparent 72%);
+  box-shadow: 0 0 80px rgba(216,161,93,0.16);
+}
+.orb.one { width: 220px; height: 220px; top: 20px; right: 34px; transform: translateZ(20px); }
+.orb.two { width: 130px; height: 130px; bottom: 60px; left: 20px; transform: translateZ(40px); }
+.orb.three { width: 90px; height: 90px; top: 50%; left: 50%; transform: translate(-60%, -50%) translateZ(0px); opacity: 0.7; }
+
+.glass-card {
+  width: min(100%, 520px);
+  border-radius: 34px;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.42);
+  transform: rotateY(-10deg) rotateX(8deg) translateZ(50px);
+  overflow: hidden;
+  position: relative;
+}
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  transform: translateX(-100%);
+  animation: sheen 6s infinite ease-in-out;
+}
+@keyframes sheen {
+  0%, 55% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+.hero-photo {
+  height: 360px;
+  border-radius: 26px;
+  overflow: hidden;
+  position: relative;
+}
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.1);
+  transition: transform 0.8s ease;
+}
+.glass-card:hover .hero-photo img { transform: scale(1.18); }
+.hero-badge {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(15,11,8,0.68);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: var(--shadow);
+  max-width: 250px;
+}
+.hero-badge strong { display: block; margin-bottom: 4px; }
+.hero-badge span { color: var(--muted); font-size: 0.92rem; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+.stat {
+  padding: 14px 12px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.09);
+  text-align: center;
+}
+.stat strong { display: block; font-size: 1.15rem; }
+.stat span { color: var(--muted); font-size: 0.84rem; }
+
+/* Section headings */
+.section-title {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.section-title h2 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  margin: 0;
+}
+.section-title p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+/* Cards */
+.grid {
+  display: grid;
+  gap: 18px;
+}
+.menu-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.card {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: var(--shadow);
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+.card:hover {
+  transform: translateY(-8px) rotateX(4deg) rotateY(-4deg) scale(1.02);
+  border-color: rgba(216,161,93,0.28);
+  box-shadow: 0 24px 60px rgba(0,0,0,0.48), 0 0 0 1px rgba(216,161,93,0.08);
+}
+.card img {
+  height: 210px;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.02);
+  transform: scale(1.03);
+  transition: transform 0.6s ease;
+}
+.card:hover img { transform: scale(1.12); }
+.card-body {
+  padding: 16px;
+  position: relative;
+  z-index: 1;
+}
+.card-body h3 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+.price {
+  color: #ffd9a9;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.card-body p {
+  color: var(--muted);
+  margin: 10px 0 0;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+/* About */
+.about-wrap {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 22px;
+  align-items: center;
+}
+.about-visual {
+  min-height: 420px;
+  border-radius: 34px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: var(--shadow);
+}
+.about-visual img {
+  width: 100%; height: 100%; object-fit: cover;
+  transform: scale(1.08);
+}
+.about-panel {
+  padding: 28px;
+  border-radius: 34px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: var(--shadow);
+}
+.about-panel h3 { margin-top: 0; font-size: 1.7rem; }
+.about-panel p {
+  color: var(--muted);
+  line-height: 1.9;
+  margin-bottom: 0;
+}
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.pill {
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: #f4e8db;
+  font-size: 0.92rem;
+}
+
+/* Contact */
+.contact-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: stretch;
+}
+.contact-info, .contact-form {
+  padding: 28px;
+  border-radius: 34px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: var(--shadow);
+}
+.contact-info p, .contact-info li {
+  color: var(--muted);
+  line-height: 1.8;
+}
+.contact-info ul {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+}
+.contact-info li { margin-bottom: 10px; }
+.contact-form label {
+  display: block;
+  margin: 0 0 8px;
+  color: #f7e8d8;
+  font-weight: 600;
+}
+.field {
+  width: 100%;
+  padding: 14px 15px;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.09);
+  outline: none;
+  background: rgba(12,8,6,0.55);
+  color: var(--text);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.field:focus {
+  border-color: rgba(216,161,93,0.45);
+  box-shadow: 0 0 0 4px rgba(216,161,93,0.12);
+}
+textarea.field { min-height: 140px; resize: vertical; }
+
+footer {
+  padding: 24px 20px 40px;
+  text-align: center;
+  color: var(--muted);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0,0,0,0.12);
+}
+
+/* Reveal animation on scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px) scale(0.98);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Floating decorative layers for 3D feel */
+.floating-shape {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216,161,93,0.35), rgba(216,161,93,0.08), transparent 70%);
+  filter: blur(3px);
+  opacity: 0.75;
+}
+
+/* Responsive */
+@media (max-width: 1050px) {
+  .hero, .about-wrap, .contact-wrap { grid-template-columns: 1fr; }
+  .hero-visual { min-height: 500px; }
+  .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .nav { flex-direction: column; align-items: flex-start; }
+  .nav-links { justify-content: flex-start; }
+  .section { padding: 70px 16px; }
+  .hero { min-height: auto; padding-top: 20px; }
+  .hero-visual { min-height: 420px; }
+  .glass-card { transform: none; }
+  .menu-grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr; }
+  .section-title { flex-direction: column; align-items: flex-start; }
+}
+
+  </style>
+</head>
+<body>
+  <!-- Loading overlay -->
+  <div class="loader" id="loader">
+    <div class="loader-box">
+      <div class="cup"></div>
+      <h1>Coffee House</h1>
+      <p>Brewed for a warm first impression...</p>
+    </div>
+  </div>  <!-- Sticky navigation -->  <div class="nav-wrap">
+    <header class="nav">
+      <a href="#home" class="brand" aria-label="Coffee House home">
+        <div class="logo">☕</div>
+        <div>
+          <strong>Coffee House</strong>
+          <span>Modern Café Demo</span>
+        </div>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="#home">Home</a>
+        <a href="#menu">Menu</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+  </div>  <main>
+    <!-- HERO SECTION -->
+    <section class="section hero" id="home">
+      <div class="hero-copy reveal parallax" data-speed="0.25">
+        <div class="eyebrow">Warm Coffee • Fresh Bites • Cozy Vibes</div>
+        <h1>Enjoy the art of <span class="accent">coffee</span> in a 3D scrolling world.</h1>
+        <p>
+          Welcome to Coffee House, a stylish café demo website with rich warm tones,
+          smooth motion, depth effects, and a modern menu experience made to feel alive while scrolling.
+        </p>
+        <div class="hero-actions">
+          <a href="#menu" class="btn primary">Explore Menu</a>
+          <a href="#contact" class="btn">Book a Visit</a>
+        </div>
+      </div><div class="hero-visual parallax" data-speed="0.45">
+    <span class="orb one"></span>
+    <span class="orb two"></span>
+    <span class="orb three"></span>
+
+    <div class="glass-card card-tilt sound-hover">
+      <div class="hero-photo">
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=1200&q=80" alt="Coffee cup on a café table" />
+        <div class="hero-badge">
+          <strong>Signature Blend</strong>
+          <span>Fresh aroma, creamy texture, and a perfect golden finish.</span>
+        </div>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong>4.9★</strong>
+          <span>Guest Rating</span>
+        </div>
+        <div class="stat">
+          <strong>15 min</strong>
+          <span>Fast Service</span>
+        </div>
+        <div class="stat">
+          <strong>100%</strong>
+          <span>Fresh Taste</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section class="section" id="menu">
+  <div class="section-title reveal">
+    <div>
+      <h2>Popular Menu</h2>
+      <p>Hover over each card to see the 3D zoom effect. These items use warm, cozy visuals for a café-style presentation.</p>
+    </div>
+  </div>
+
+  <div class="grid menu-grid">
+    <article class="card reveal sound-hover card-tilt parallax" data-speed="0.10">
+      <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=900&q=80" alt="Coffee" />
+      <div class="card-body">
+        <h3>Coffee</h3>
+        <div class="price">₹120</div>
+        <p>Rich espresso with a smooth finish and a comforting café aroma.</p>
+      </div>
+    </article>
+
+    <article class="card reveal sound-hover card-tilt parallax" data-speed="0.12">
+      <img src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&w=900&q=80" alt="Cold Coffee" />
+      <div class="card-body">
+        <h3>Cold Coffee</h3>
+        <div class="price">₹150</div>
+        <p>Chilled, creamy, and refreshing for a smooth cool-down treat.</p>
+      </div>
+    </article>
+
+    <article class="card reveal sound-hover card-tilt parallax" data-speed="0.14">
+      <img src="https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=900&q=80" alt="Sandwich" />
+      <div class="card-body">
+        <h3>Sandwich</h3>
+        <div class="price">₹90</div>
+        <p>Freshly prepared, lightly toasted, and packed with flavor.</p>
+      </div>
+    </article>
+
+    <article class="card reveal sound-hover card-tilt parallax" data-speed="0.16">
+      <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=900&q=80" alt="Burger" />
+      <div class="card-body">
+        <h3>Burger</h3>
+        <div class="price">₹140</div>
+        <p>Juicy, satisfying, and served with a modern café vibe.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section" id="about">
+  <div class="section-title reveal">
+    <div>
+      <h2>About Coffee House</h2>
+      <p>A calm and stylish café concept built with warm colors, glass effects, and a modern scrolling experience.</p>
+    </div>
+  </div>
+
+  <div class="about-wrap">
+    <div class="about-visual reveal parallax" data-speed="0.18">
+      <img src="https://images.unsplash.com/photo-1445116572660-236099ec97a0?auto=format&fit=crop&w=1200&q=80" alt="Modern cafe interior" />
+    </div>
+    <div class="about-panel reveal parallax" data-speed="0.08">
+      <h3>Fresh coffee, cozy seating, and a place that feels alive.</h3>
+      <p>
+        Coffee House is designed as a demo café website with a premium feel. It uses depth-based motion,
+        soft glow, elegant shadows, and smooth transitions to create a modern experience on desktop and mobile.
+      </p>
+      <p>
+        This layout is beginner-friendly, easy to edit, and ready to open directly in a browser.
+      </p>
+      <div class="pill-row">
+        <span class="pill">Warm Theme</span>
+        <span class="pill">3D Scroll</span>
+        <span class="pill">Responsive</span>
+        <span class="pill">Single File</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="section-title reveal">
+    <div>
+      <h2>Contact Us</h2>
+      <p>Simple form with a dummy submit button. No backend needed.</p>
+    </div>
+  </div>
+
+  <div class="contact-wrap">
+    <div class="contact-info reveal parallax" data-speed="0.08">
+      <h3>Visit our café or send a message</h3>
+      <p>
+        Whether you want a hot coffee, a cold drink, or a quick snack, Coffee House is made for a pleasant and stylish café browsing experience.
+      </p>
+      <ul>
+        <li><strong>Address:</strong> 123 Aroma Street, Mumbai</li>
+        <li><strong>Phone:</strong> +91 98765 43210</li>
+        <li><strong>Email:</strong> hello@coffeehouse.demo</li>
+      </ul>
+    </div>
+
+    <form class="contact-form reveal sound-hover" id="contactForm">
+      <label for="name">Name</label>
+      <input class="field" type="text" id="name" placeholder="Your name" required />
+
+      <label for="message">Message</label>
+      <textarea class="field" id="message" placeholder="Write your message" required></textarea>
+
+      <button type="submit" class="btn primary" style="border:0; width:100%;">Send Message</button>
+    </form>
+  </div>
+</section>
+
+  </main>  <footer>
+    © 2026 Coffee House • Demo website with 3D scrolling effects
+  </footer>  <script>
+    // =========================================================
+    // Smooth loading, reveal animations, parallax, tilt, sound
+    // =========================================================
+
+    const loader = document.getElementById('loader');
+
+    window.addEventListener('load', () => {
+      setTimeout(() => loader.classList.add('hide'), 900);
+    });
+
+    // Reveal elements as they enter the screen
+    const revealItems = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.14 });
+
+    revealItems.forEach(el => revealObserver.observe(el));
+
+    // Simple parallax scroll effect
+    const parallaxItems = document.querySelectorAll('.parallax');
+
+    function updateParallax() {
+      const scrollY = window.scrollY;
+      const vh = window.innerHeight;
+
+      parallaxItems.forEach(el => {
+        const speed = parseFloat(el.dataset.speed || '0.1');
+        const rect = el.getBoundingClientRect();
+        const center = rect.top + rect.height / 2;
+        const distanceFromCenter = (center - vh / 2);
+        const moveY = -distanceFromCenter * speed * 0.08;
+        const rotate = Math.max(-6, Math.min(6, distanceFromCenter / 120));
+        el.style.transform = `translate3d(0, ${moveY}px, 0) perspective(1200px) rotateX(${rotate * 0.06}deg)`;
+      });
+    }
+
+    // 3D hover tilt for cards and buttons
+    const tiltCards = document.querySelectorAll('.card-tilt');
+    tiltCards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = e.clientX - r.left;
+        const y = e.clientY - r.top;
+        const rx = ((y / r.height) - 0.5) * -10;
+        const ry = ((x / r.width) - 0.5) * 10;
+        card.style.transform = `translateY(-8px) rotateX(${rx}deg) rotateY(${ry}deg) scale(1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+
+    // Optional tiny hover/click sound using Web Audio API
+    let audioCtx;
+    function beep(type = 'hover') {
+      try {
+        audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.value = type === 'click' ? 220 : 320;
+        g.gain.value = 0.0001;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start();
+        g.gain.exponentialRampToValueAtTime(0.07, audioCtx.currentTime + 0.01);
+        o.frequency.exponentialRampToValueAtTime(type === 'click' ? 160 : 260, audioCtx.currentTime + 0.08);
+        g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+        o.stop(audioCtx.currentTime + 0.13);
+      } catch (err) {
+        // Sound is optional; ignore errors silently.
+      }
+    }
+
+    document.querySelectorAll('.sound-hover').forEach(el => {
+      el.addEventListener('mouseenter', () => beep('hover'));
+      el.addEventListener('click', () => beep('click'));
+    });
+
+    // Dummy form submit
+    document.getElementById('contactForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      beep('click');
+      alert('Thanks! Your message was sent in this demo.');
+      e.target.reset();
+    });
+
+    window.addEventListener('scroll', updateParallax, { passive: true });
+    window.addEventListener('resize', updateParallax);
+    updateParallax();
+  </script></body>
+</html>
